@@ -28,11 +28,13 @@
             Welcome back, {{ auth()->user()->name }}
           </a>
           <ul class="dropdown-menu">
+            {{-- button dashboard --}}
             <li><a class="dropdown-item" href="/dashboard"><i class="bi bi-layout-text-window-reverse"></i> Dashboard</a></li>
+            {{-- button edit profile --}}
             <li><a class="dropdown-item" href="/editprofile"><i class="bi bi-person-lines-fill"></i> Edit Profile</a></li>
             <li><hr class="dropdown-divider"></li>
             <li>
-              
+              {{-- Log Out --}}
               <form action="/logout" method="post">
                 @csrf
                 <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right"></i> Log Out</button>
