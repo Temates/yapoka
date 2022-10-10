@@ -27,7 +27,7 @@ class GoogleAuthController extends Controller
              ]);
              
              Auth::login($new_user);
-             return redirect()->intended();
+             return redirect()->intended('');
 
          }
          else {
