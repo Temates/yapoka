@@ -54,6 +54,13 @@
             <small class="text-muted d-block text-center mt-3 fs-5">
                 Not Registered? <a href="/register" >Register Now!</a> 
             </small>
+            <small class="text-muted d-block text-center mt-1 fs-5">
+                Or
+            </small>
+            <small class="text-muted d-block text-center mt-1 fs-5">
+                Log in using your account on:
+            </small>
+            <a href="auth/google" class="btn btn-secondary btn-block d-block mt-2"><img src="https://accounts.google.com/favicon.ico" alt="" width="24" height="24"> Google</a>
         </main>
         
     </div>

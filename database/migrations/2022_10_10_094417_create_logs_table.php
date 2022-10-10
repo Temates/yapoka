@@ -13,10 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('categories', function (Blueprint $table) {
-            $table->id();
-            $table->string('soal');
-            $table->string('type');
+        Schema::create('logs', function (Blueprint $table) {
+            $table->foreignId('post_id');
+            $table->foreignId('user_id');
+            $table->string('description');
             $table->timestamps();
         });
     }
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('categories');
+        Schema::dropIfExists('logs');
     }
 };

@@ -15,14 +15,11 @@ return new class extends Migration
     {
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id');
-            $table->foreignId('user_id');
-            $table->string('title');
-            $table->string('slug')->unique();
-            $table->string('image')->nullable();
-            $table->text('excerpt');
-            $table->text('body');
-            $table->timestamp('published_at')->nullable();
+            $table->integer('idpengisidata');
+            $table->integer('status_penyetuju_nomer');
+            $table->string('note')->nullable();
+            $table->integer('jumlah_penyetuju');
+            $table->string('list_id_penyetuju');
             $table->timestamps();
         });
     }
