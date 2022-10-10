@@ -15,9 +15,7 @@ class AdminCategoryController extends Controller
     public function index()
     {
 
-        if (auth()->guest() || auth()->user()->username !== 'phenando') {
-            abort(403);
-        }
+       $this->authorize('admin');
 
 
         return view('dashboard.categories.index',[
