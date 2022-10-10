@@ -21,7 +21,7 @@ use App\Http\Controllers\DashboardPostController;
 */
 
 Route::get('/', function () {
-    return view('home',[
+    return view('login.index',[
         "title" => "Home",
         "active" => "home",
     ]);
