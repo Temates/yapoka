@@ -17,10 +17,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('username')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->foreignId('role_id');
+            $table->string('username')->unique();            
+            $table->string('password')->nullable();
+            $table->foreignId('role_id')->default('0');
             $table->boolean('is_admin')->default(false);
             $table->boolean('alert')->default(false);
             $table->rememberToken();

@@ -47,6 +47,10 @@
                 <input type="password" class="form-control " name="password" id="password" placeholder="Password" required>
                 <label for="password">Password</label>
                 </div>
+                {{-- <div class="form-floating">
+                <input type="password" class="form-control " name="password" id="password" placeholder="Password" required>
+                <label for="password">Password</label>
+                </div> --}}
 
                 <button class="w-100 btn btn-lg btn-primary" type="submit">Login</button>                
 

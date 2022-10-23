@@ -32,7 +32,8 @@ class DashboardPostController extends Controller
     public function create()
     {
         return view('dashboard.posts.create',[
-            'categories' => Category::all()
+            'categories' => Category::all(),
+            'posts' => Post::where('user_id', auth()->user()->id)->get()
         ]);
 
     }

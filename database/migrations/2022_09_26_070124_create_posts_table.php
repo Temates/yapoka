@@ -15,11 +15,14 @@ return new class extends Migration
     {
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
-            $table->integer('idpengisidata');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users');
             $table->integer('status_penyetuju_nomer');
             $table->string('note')->nullable();
             $table->integer('jumlah_penyetuju');
             $table->string('list_id_penyetuju');
+            $table->string('status_pengisian');
+            $table->string('list_id_soal');
             $table->timestamps();
         });
     }

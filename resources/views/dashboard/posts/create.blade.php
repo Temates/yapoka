@@ -9,6 +9,18 @@
     
     <form method="post" action="/dashboard/posts" class="mb-5" enctype="multipart/form-data">
         @csrf
+
+        <div class="mb-3">
+            <label for="user_id" class="form-label">Pembuat Laporan</label>
+            {{-- <input type="text" class="form-control" id="slug" name="slug" disabled readonly value="{{ old('slug') }}"> --}}
+            <input type="text" class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id" value="{{ old('user_id', auth()->user()->name) }}" disabled>
+              @error('user_id')
+                  <div class="invalid-feedback">
+                      {{ $message }}
+                  </div>                    
+              @enderror 
+          </div>
+
         <div class="mb-3">
             <label for="title" class="form-label">Title</label>
             <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title" required autofocus value="{{ old('title') }}">
@@ -30,6 +42,7 @@
                 </div>                    
             @enderror 
         </div>
+      
 
         <div class="mb-3">
             <label for="category" class="form-label">Category</label>
@@ -64,8 +77,9 @@
             @enderror
         </div>
 
- 
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
         <button type="submit" class="btn btn-primary">Add Post</button>
+        </div>
       </form>
 </div>
 

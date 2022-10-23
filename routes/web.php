@@ -74,8 +74,21 @@ Route::get('/dashboard', function(){
 
 Route::get('/dashboard/posts/checkSlug', [DashboardPostController::class, 'checkSlug'])->middleware('auth');
 
+Route::get('/dashboard/posts/creates', function(){
+    return dd(request());
+    })->middleware('auth');
+// Route::get('/dashboard/posts/creates', function(){
+//     return view('dashboard.posts.create',[
+//         'categories'=> Category::all()]);
+//     })->middleware('auth');
 Route::resource('/dashboard/posts', DashboardPostController::class)->middleware('auth');
 
 Route::get('/dashboard/posts/{post:slug}',[DashboardPostController::class, 'show'])->middleware('auth');
 
 Route::resource('/dashboard/categories', AdminCategoryController::class)->except('show')->middleware('admin');
+
+
+
+// Route::post('/dashboard/post/pilihangket', [dataangket::class, 'postdata'])->except('show')->middleware('admin');
+// Route::get('/dashboard/post/isiangket', [dataangket::class, 'isiangket'])->except('show')->middleware('admin');
+// Route::post('/dashboard/post/pilihangket', [dataangket::class, 'submit'])->except('show')->middleware('admin');

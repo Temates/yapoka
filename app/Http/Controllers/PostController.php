@@ -28,6 +28,15 @@ class PostController extends Controller
             
             //"posts" => $posts->get()
             "posts" => Post::latest()->filter(request(['search', 'category', 'author']))->paginate(7)->withQueryString()
+
+
+
+
+
+
+
+
+
         ]);
     }
     
@@ -38,5 +47,19 @@ class PostController extends Controller
             "post" => $post
         ]);
     }
+
+
+
+        // Kode Andreas
+        // public function index()
+        // {
+        //     $post =Post::all();
+    
+        //     return response()->json([
+        //         'status'=> true,
+        //         'massage' => $post,
+    
+        //     ],200);
+        // }
 
 }
