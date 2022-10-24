@@ -9,6 +9,13 @@
 
     </div>
 
+    @if (session()->has('success'))
+        
+    <div class="alert alert-success fade show col-lg-10" role="alert">
+         {{  session('success') }}
+    </div>
+    
+    @endif
     <div class="col-sm-3">
         <div id="row">
             <div class="input-group m-3">

@@ -8,8 +8,15 @@
           </a>
         </li>
         <li class="nav-item">
+          <a class="nav-link {{ Request::is('dashboard/EditProfile') ? 'active' : '' }}"  href="/dashboard/EditProfile">
+            <span data-feather="user" class="align-text-bottom"></span>
+            Edit Profile
+          </a>
+        </li>
+        
+        <li class="nav-item">
           <a class="nav-link {{ Request::is('dashboard/posts*') ? 'active' : '' }}" href="/dashboard/posts">
-            <span data-feather="file-text" ></span>
+            <span data-feather="briefcase" ></span>
             My Documents
           </a>
         </li>
@@ -22,12 +29,18 @@
       </h6>
       <ul class="nav flex-column">
         <li class="nav-item">
-          <a class="nav-link {{ Request::is('dashboard/categories*') ? 'active' : '' }}" href="/dashboard/categories">
-            <span data-feather="grid" class="align-text-bottom"></span>
-            Post Categories
+          <a class="nav-link {{ Request::is('dashboard/angket/add') ? 'active' : '' }}" href="/dashboard/angket/add">
+            <span data-feather="file-text" class="align-text-bottom"></span>
+            Input Soal
           </a>
-
         </li>
+        <li class="nav-item">
+          <a class="nav-link {{ Request::is('/dashboard/pilihangket/add/') ? 'active' : '' }}" href="/dashboard/pilihangket/add">
+            <span data-feather="file-plus" class="align-text-bottom"></span>
+            Buat Laporan
+          </a>
+        </li>
+        
       </ul>
 
       @endcan

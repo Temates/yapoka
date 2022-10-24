@@ -142,7 +142,7 @@ class dataangket extends Controller
             */
 
         }
-        return view('dashboard.posts.index', [
+        return view('dashboard.index', [
             'posts' => Post::where('user_id', auth()->user()->id)->get()
 
         ]);      

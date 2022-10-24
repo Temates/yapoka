@@ -1,12 +1,15 @@
 <?php
 
 use App\Models\Category;
-use Illuminate\Support\Facades\Route;
+use App\Models\UserProfile;
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\AdminCategoryController;
 use App\Http\Controllers\DashboardPostController;
 
@@ -87,6 +90,19 @@ Route::get('/dashboard/posts/{post:slug}',[DashboardPostController::class, 'show
 
 Route::resource('/dashboard/categories', AdminCategoryController::class)->except('show')->middleware('admin');
 
+
+Route::get('/dashboard/EditProfile', [UserProfileController::class, 'index'])->middleware('auth');
+Route::put('/dashboard/EditProfile', [UserProfileController::class, 'update'])->middleware('auth');
+Route::get('/forgot-password', function () {
+    return view('auth.forgot-password',[
+    'title' => 'Forgot Password',
+    'active' => 'forgot']);
+})->middleware('guest')->name('password.request');
+
+Route::get('/dashboard/angket/add', [CategoryController::class, 'index'])->middleware('admin');
+Route::post('/dashboard/angket/send', [CategoryController::class, 'store'])->middleware('admin');
+Route::get('/dashboard/pilihangket/add', [CategoryController::class, 'create'])->middleware('admin');
+Route::post('/dashboard/pilihangket/send', [CategoryController::class, 'storeangket'])->middleware('admin');
 
 
 // Route::post('/dashboard/post/pilihangket', [dataangket::class, 'postdata'])->except('show')->middleware('admin');

@@ -51,4 +51,8 @@ class User extends Authenticatable
     public function role(){
         return $this->belongsTo(Role::class);
     }
+    public function userprofile(){
+        return $this->belongsTo(UserProfile::class);
+    }
+
 }

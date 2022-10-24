@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\UserProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -21,14 +22,22 @@ class GoogleAuthController extends Controller
          $google_user = Socialite::driver('google')->user();
          $user = User::where('name', $google_user->getName())->first();
          if (!$user) {
-             $new_user = User::create([
+            $new_user = User::create([
                  'name' => $google_user->getName(),
                  'email' => $google_user->getEmail(),
                  'username' => $google_user->getName(),
-                 'password' => Hash::make('password')
+                 'password' => Hash::make('password')     
+
              ]);
              
              Auth::login($new_user);
+
+             UserProfile::create([
+                'user_id' => auth()->user()->id,
+                'full_name' => '',
+                'handphone_number' => '',
+                'address' => '',
+             ]);
              return redirect()->intended('dashboard');
 
          }
