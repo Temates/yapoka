@@ -2,10 +2,15 @@
 
 use App\Models\Category;
 use App\Models\UserProfile;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
+use Illuminate\Support\Facades\Password;
 use App\Http\Controllers\LoginController;
+use Illuminate\Auth\Events\PasswordReset;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\GoogleAuthController;
@@ -92,12 +97,47 @@ Route::resource('/dashboard/categories', AdminCategoryController::class)->except
 
 
 Route::get('/dashboard/EditProfile', [UserProfileController::class, 'index'])->middleware('auth');
-Route::put('/dashboard/EditProfile', [UserProfileController::class, 'update'])->middleware('auth');
-Route::get('/forgot-password', function () {
-    return view('auth.forgot-password',[
-    'title' => 'Forgot Password',
-    'active' => 'forgot']);
-})->middleware('guest')->name('password.request');
+Route::put('/dashboard/EditProfile', 
+[UserProfileController::class, 'update'])->middleware('auth');
+
+
+
+
+Route::get('/forgot-password',[LoginController::class, 'resetpasspage'])->middleware('guest')->name('password.request');
+ 
+Route::post('/forgot-password', [LoginController::class, 'resetemail'])->middleware('guest')->name('password.email');
+
+Route::get('/reset-password/{token}', function ($token) {
+    return view('auth.reset-password', ['token' => $token]);
+})->middleware('guest')->name('password.reset');
+
+Route::post('/reset-password', function (Request $request) {
+    $request->validate([
+        'token' => 'required',
+        'email' => 'required|email',
+        'password' => 'required|min:8|confirmed',
+    ]);
+ 
+    $status = Password::reset(
+        $request->only('email', 'password', 'password_confirmation', 'token'),
+        function ($user, $password) {
+            $user->forceFill([
+                'password' => Hash::make($password)
+            ])->setRememberToken(Str::random(60));
+ 
+            $user->save();
+ 
+            event(new PasswordReset($user));
+        }
+    );
+ 
+    return $status === Password::PASSWORD_RESET
+                ? redirect()->route('login')->with('status', __($status))
+                : back()->withErrors(['email' => [__($status)]]);
+})->middleware('guest')->name('password.update');
+
+
+
 
 Route::get('/dashboard/angket/add', [CategoryController::class, 'index'])->middleware('admin');
 Route::post('/dashboard/angket/send', [CategoryController::class, 'store'])->middleware('admin');

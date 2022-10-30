@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\MailNotify;
 
 class LoginController extends Controller
 {
@@ -45,15 +49,57 @@ class LoginController extends Controller
      
         return redirect('/');
     }
-    // public function resetpassword(Request $request){
-    //     $request->validate(['email' => 'required|email']);
-    //     $status = Password::sendResetLink(
-    //         $request->only('email')
-    //     );
+  
+    public function resetpasspage(){
+        return view('auth.forgot-password',[
+            'title' => 'Reset Password',
+            'active' => 'reset-password']);         
+    }
+
+    public function resetemail(Request $request){
+        $rules = [
+            'email' => 'required|email:dns'    
+        ];
+        $email = User::where('email', $request->email);
+        $data = [
+            'subject' => 'Reset Password',
+            'body' => 'User',
+        ];
+        try{
+            Mail::to('c11190016@john.petra.ac.id')->send(new MailNotify($data));
+            return redirect('auth.forgot-password')->with('success', 'Reset password has been sent!');
+
+        }catch (Exception $th){
+            return response()->json(['Sorry something went wrong!']);
+        }
+        $request->validate($rules);
+        if ($email != '') {
+            
 
 
-    //     return redirect('/');
-    // }
+            
+        }
+        else{
+            return redirect('auth.forgot-password')->with('success', 'No Email Recorded!');
+        
+        }
+        
+       
+        
+ 
+        // // $status = Password::sendResetLink(
+        // //     $request->only('email')
+        // // );
+        // $status = Password::sendResetLink(['email' => 'c11190016@john.petra.ac.id']
+            
+        // );
+     
+        // return $status === Password::RESET_LINK_SENT
+        //             ? back()->with(['status' => __($status)])
+        //             : back()->withErrors(['email' => __($status)]);      
+    }
+
+  
 
 
 }

@@ -13,7 +13,7 @@ class CategoryController extends Controller
 
         return view('dashboard.angket',[
             'category' => $category,
-            'title' => 'Judul Soal',
+            'title' => 'Input Soal',
         ]);
     }
     public function store(Request $request)
@@ -44,25 +44,26 @@ class CategoryController extends Controller
     }
     public function create()
     {
-        $count = Category::count();
-        $soal = Category::all();
+//         $count = Category::count();
+//         $soal = Category::all();
         
-if($count > 0) {
-     $message = $count;
-}else {
-    $message = "kosong";
-}
-for ($i = 0; $i < $message; $i++){
-            $tes[$i] = $soal[$i];
-    }
-    dd($tes);
-        return view('pilihangket',compact('message','tes'));    
+// if($count > 0) {
+//      $message = $count;
+// }else {
+//     $message = "kosong";
+// }
+// for ($i = 0; $i < $message; $i++){
+//             $tes[$i] = $soal[$i];
+//     }
+//     dd($tes);
+//         return view('pilihangket',compact('message','tes'));    
 
-        $category = Category::all();
+       
 
         return view('dashboard.angket.pilihangket',[
-            'category' => $category,
-            'title' => 'Judul Soal',
+            'categories' => Category::all(),
+            'title' => 'Buat Laporan',
+            
         ]);
     }
 
@@ -74,7 +75,7 @@ for ($i = 0; $i < $message; $i++){
      */
     public function storeangket(Request $request)
     {
-
+        
         $angka = null;
         $dummyurutansoalcek = false;
         $listpemeriksa = null;

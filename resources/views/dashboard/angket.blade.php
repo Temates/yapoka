@@ -8,7 +8,7 @@
     
 <div class="col-lg-5">
     
-    <form method="post" action="dashboard/angket/send" class="mb-5" enctype="multipart/form-data">
+    <form method="post" action="/dashboard/angket/send" class="mb-5" enctype="multipart/form-data">
         @csrf
 
         <div class="mb-3">

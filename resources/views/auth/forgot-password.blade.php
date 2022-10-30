@@ -30,7 +30,7 @@
 
             <h1 class="mb-3 fw-normal text-center">Forgot Password</h1>
 
-            <form action="/login" method="post">
+            <form action="/forgot-password" method="post">
                 @csrf
 
                 <div class="form-floating">
@@ -43,16 +43,7 @@
                 @enderror
                 </div>
 
-                <div class="form-floating">
-                <input type="password" class="form-control " name="password" id="password" placeholder="Password" required>
-                <label for="password">Password</label>
-                </div>
-                {{-- <div class="form-floating">
-                <input type="password" class="form-control " name="password" id="password" placeholder="Password" required>
-                <label for="password">Password</label>
-                </div> --}}
-
-                <button class="w-100 btn btn-lg btn-primary" type="submit">Login</button>                
+                <button class="w-100 btn btn-lg btn-primary mt-3" type="submit">Submit</button>                
 
             </form>
             
