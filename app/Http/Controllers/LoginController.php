@@ -60,43 +60,37 @@ class LoginController extends Controller
         $rules = [
             'email' => 'required|email:dns'    
         ];
-        $email = User::where('email', $request->email);
+        $request->validate($rules);
+        $email = User::where('email', $request->email)->select('email')->first();
         $data = [
             'subject' => 'Reset Password',
-            'body' => 'User',
+            'body' => 'User '. $email->email .' mengirimkan reset password',
         ];
         try{
+            
             Mail::to('c11190016@john.petra.ac.id')->send(new MailNotify($data));
-            return redirect('auth.forgot-password')->with('success', 'Reset password has been sent!');
+            // return response()->json(['Check Ur email box!']);
+            return redirect('/forgot-password')->with('success', 'Reset password has been sent!');
 
         }catch (Exception $th){
-            return response()->json(['Sorry something went wrong!']);
+            return response()->json(['<h1>Sorry something went wrong!</h1>']);
         }
-        $request->validate($rules);
-        if ($email != '') {
-            
+        
 
 
+        // Mail::to('c11190016@john.petra.ac.id')->send(new MailNotify($data));
+        // // dd($request);
+        // // return redirect('auth.forgot-password', array('title' => 'Reset Password',
+        // // 'active' => 'reset-password'))
+        // // ->with('success', 'Reset password has been sent!')
+        // // ->with('title', 'Reset Password')
+        // // ->with('active','reset-password');
+        // return view('auth.forgot-password',[
+        //     'title' => 'Reset Password',
+        //     'active' => 'reset-password']); 
+
+         
             
-        }
-        else{
-            return redirect('auth.forgot-password')->with('success', 'No Email Recorded!');
-        
-        }
-        
-       
-        
- 
-        // // $status = Password::sendResetLink(
-        // //     $request->only('email')
-        // // );
-        // $status = Password::sendResetLink(['email' => 'c11190016@john.petra.ac.id']
-            
-        // );
-     
-        // return $status === Password::RESET_LINK_SENT
-        //             ? back()->with(['status' => __($status)])
-        //             : back()->withErrors(['email' => __($status)]);      
     }
 
   

@@ -31,6 +31,6 @@ class MailNotify extends Mailable
     public function build()
     {
         return $this->from('mext@example.org', 'MExt')->subject($this->data['subject'])
-        ->view('auth.forgot-password')->with('success', 'Reset Password Sended!');;
+        ->view('emails.subscribe')->with("data",$this->data);
     }
 }

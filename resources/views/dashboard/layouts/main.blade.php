@@ -21,7 +21,7 @@
     </style>
 
   </head>
-  <body>
+  <body onload="alaram()">
     
 @include('dashboard.layouts.header')
 

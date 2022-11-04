@@ -11,60 +11,47 @@
 
     @if (session()->has('success'))
         
-    <div class="alert alert-success fade show col-lg-10" role="alert">
-         {{  session('success') }}
+    <div class="alert alert-success fade show col-lg-6" role="alert">
+         {{ session('success') }}
     </div>
     
     @endif
-    <div class="col-sm-3">
-        <div id="row">
-            <div class="input-group m-3">
-                <div class="input-group-prepend">
-                    <button class="btn btn-danger"
-                        id="DeleteRow" type="button">
-                        <i class="bi bi-trash"></i>
-                        Delete
-                    </button>
-                </div>
-                <input type="text"
-                    class="form-control m-input">
-            </div>
-        </div>
+    <div class="table-responsive col-lg-6">
+      <a href="/dashboard/posts/create" class=" btn btn-primary mb-3">Create new post</a>
+        <table class="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col">#</th>
+              <th scope="col">Title</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach ( $posts as $post )                    
+            <tr>
+              <td></td>
+              <td>{{ $loop->iteration }}</td>
+              <td>{{ $post->title }}</td>
+              <td>
+                <a href="/dashboard/posts/{{ $post->slug }}" class="badge bg-info"><span data-feather="eye"  ></span></a>
+                <a href="/dashboard/posts/{{ $post->slug }}/edit" class="badge bg-warning"><span data-feather="edit"  ></span></a>
+                <form action="/dashboard/posts/{{ $post->slug }}" method="post" class="d-inline">
+                  @method('delete')
+                  @csrf
+                  <button class="badge bg-danger border-0" onclick="return confirm('Are you sure?')"><span data-feather="x-circle"  ></span></button>
+                </form>
+                
 
-        <div id="newinput">
-
-        </div>
-        <button id="rowAdder" type="button"
-            class="btn btn-dark ms-3">
-            <span class="bi bi-plus-square-dotted">
-            </span> ADD
-        </button>
-    </div>
-
-
-    
-    
-    <script >
-          
-        const rowAdder = document.querySelector("#rowAdder");
-        const rowdelete = document.querySelector("#DeleteRow");    
-  
-        rowAdder.addEventListener("click", function() {
+              </td>
+            </tr>
+            @endforeach
             
-          var newRowAdd = 
-          // slug.value = newRowAdd;
-              '<div id="row"> <div class="input-group m-3">' +
-              '<div class="input-group-prepend">' +
-              '<button class="btn btn-danger" id="DeleteRow" type="button">' +
-              '<i class="bi bi-trash"></i> Delete</button>  </div>' +
-              '<input type="text" class="form-control m-input"> </div> </div>';
-              $('#newinput').append(newRowAdd);
-              
-        });
-  
-        $("body").on("click", "#DeleteRow", function () {
-              $(this).parents("#row").remove();
-          })
-        </script>
+          </tbody>
+        </table>
+      </div>
+   
+    
+   
     
 @endsection

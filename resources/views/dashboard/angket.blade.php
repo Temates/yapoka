@@ -5,7 +5,14 @@
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">Input Soal</h1>        
 </div>
-    
+        
+        @if (session()->has('success'))
+                
+        <div class="alert alert-success fade show col-lg-5" role="alert">
+            {{ session('success') }}
+        </div>
+
+        @endif
 <div class="col-lg-5">
     
     <form method="post" action="/dashboard/angket/send" class="mb-5" enctype="multipart/form-data">

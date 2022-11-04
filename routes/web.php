@@ -1,10 +1,11 @@
 <?php
 
+use App\Models\Pelaporan;
 use App\Models\Category;
 use App\Models\UserProfile;
 use Illuminate\Support\Str;
-use Illuminate\Http\Request;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
@@ -36,31 +37,7 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/about', function () {
-    return view('about', [
-        "name" => "Phe Nando",
-        "active" => "about",
-        "email" => "c11190016@john.petra.ac.id",
-        "image" => "nando.jpg",
-        "title" => "About"
-        
-    ]);
-});
 
-
-
-Route::get('/posts', [PostController::class, 'index']);
-
-//halaman single post
-Route::get('posts/{post:slug}',[PostController::class, 'show']);
-
-Route::get('/categories', function(Category $category){
-    return view('categories',[
-        'title' => 'Post Categories',
-        'active' => 'categories',
-        'categories'=> Category::all()
-    ]);
-});
 Route::get('/login', [LoginController::class, 'index'])->name('login')->middleware('guest');
 Route::post('/login', [LoginController::class, 'authenticate']);
 
@@ -76,13 +53,14 @@ Route::post('/register', [RegisterController::class, 'store']);
 Route::get('/dashboard', function(){
     return view('dashboard.index',[
         'title' => 'Dashboard',
-        'active' => 'dashboard'
+        'active' => 'dashboard',
+        'posts' => Pelaporan::where('idpengisidata', auth()->user()->id)->get()
     ]);
 })->middleware('auth');
 
 Route::get('/dashboard/posts/checkSlug', [DashboardPostController::class, 'checkSlug'])->middleware('auth');
 
-Route::get('/dashboard/posts/creates', function(){
+Route::get('/dashboard/posts/create', function(){
     return dd(request());
     })->middleware('auth');
 // Route::get('/dashboard/posts/creates', function(){
@@ -111,40 +89,13 @@ Route::get('/reset-password/{token}', function ($token) {
     return view('auth.reset-password', ['token' => $token]);
 })->middleware('guest')->name('password.reset');
 
-Route::post('/reset-password', function (Request $request) {
-    $request->validate([
-        'token' => 'required',
-        'email' => 'required|email',
-        'password' => 'required|min:8|confirmed',
-    ]);
- 
-    $status = Password::reset(
-        $request->only('email', 'password', 'password_confirmation', 'token'),
-        function ($user, $password) {
-            $user->forceFill([
-                'password' => Hash::make($password)
-            ])->setRememberToken(Str::random(60));
- 
-            $user->save();
- 
-            event(new PasswordReset($user));
-        }
-    );
- 
-    return $status === Password::PASSWORD_RESET
-                ? redirect()->route('login')->with('status', __($status))
-                : back()->withErrors(['email' => [__($status)]]);
-})->middleware('guest')->name('password.update');
-
-
-
 
 Route::get('/dashboard/angket/add', [CategoryController::class, 'index'])->middleware('admin');
 Route::post('/dashboard/angket/send', [CategoryController::class, 'store'])->middleware('admin');
-Route::get('/dashboard/pilihangket/add', [CategoryController::class, 'create'])->middleware('admin');
-Route::post('/dashboard/pilihangket/send', [CategoryController::class, 'storeangket'])->middleware('admin');
 
+Route::get('/dashboard/pilihangket/add', [DashboardPostController::class, 'create'])->middleware('admin');
 
-// Route::post('/dashboard/post/pilihangket', [dataangket::class, 'postdata'])->except('show')->middleware('admin');
-// Route::get('/dashboard/post/isiangket', [dataangket::class, 'isiangket'])->except('show')->middleware('admin');
-// Route::post('/dashboard/post/pilihangket', [dataangket::class, 'submit'])->except('show')->middleware('admin');
+Route::get('/dashboard/pilihangket/addsend', [DashboardPostController::class, 'createsoal'])->middleware('admin');
+
+Route::post('/dashboard/pilihangket/send', [DashboardPostController::class, 'storeangket'])->middleware('admin');
+

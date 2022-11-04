@@ -14,13 +14,6 @@
           </a>
         </li>
         
-        <li class="nav-item">
-          <a class="nav-link {{ Request::is('dashboard/posts*') ? 'active' : '' }}" href="/dashboard/posts">
-            <span data-feather="briefcase" ></span>
-            My Documents
-          </a>
-        </li>
-      </ul>
 
       @can('admin')
         

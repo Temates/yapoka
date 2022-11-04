@@ -8,7 +8,7 @@
     
 <div class="col-lg-5">
   
-<form action=/pilihangket/send method="get">
+<form action=/dashboard/pilihangket/addsend method="get">
   @csrf
   <div class="table-responsive col-lg-10">
         <table class="table table-striped table-sm">
@@ -44,7 +44,11 @@
     <div class="mb-2 col-lg-10">
       <label for="jpemeriksa" class="form-label">Jumlah Pemeriksa:</label>
       <input type="number" class="form-control mb-3 @error('jpemeriksa') is-invalid @enderror" id="jpemeriksa" name="jpemeriksa" required autofocus value="{{ old('jpemeriksa') }}">
-      <input type="hidden" id="message" name="message" value= "{{ $category->count()}}" >
+     @if (isset($category))
+     <input type="hidden" id="message" name="message" value= "{{ $category->count()}}" >      
+
+     @else
+     @endif
       @error('jpemeriksa')
           <div class="invalid-feedback">
               {{ $message }}
