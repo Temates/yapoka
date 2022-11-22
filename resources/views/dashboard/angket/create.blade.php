@@ -12,7 +12,7 @@
     
 <div class="col-lg-8">
     
-    <form method="post" action="/dashboard/pilihangket/send" class="mb-5" >
+    <form method="post" action="/dashboard/pilihangket/send" class="mb-5" id="form" >
         @csrf
 
         <div class="mb-3">
@@ -88,7 +88,8 @@
 
 
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <button type="submit" class="btn btn-primary" onclick="myFunction()">Submit</button>
+        {{-- <button type="submit" class="btn btn-primary" onclick="myFunction()">Submit</button> --}}
+        <button type="button" class="btn btn-primary" onclick="myFunction()">Submit</button>
         </div>
       </form>
 </div>

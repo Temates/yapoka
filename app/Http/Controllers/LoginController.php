@@ -55,7 +55,6 @@ class LoginController extends Controller
             'title' => 'Reset Password',
             'active' => 'reset-password']);         
     }
-
     public function resetemail(Request $request){
         $rules = [
             'email' => 'required|email:dns'    
@@ -70,30 +69,15 @@ class LoginController extends Controller
             
             Mail::to('c11190016@john.petra.ac.id')->send(new MailNotify($data));
             // return response()->json(['Check Ur email box!']);
-            return redirect('/forgot-password')->with('success', 'Reset password has been sent!');
+            return redirect('/')->with('success', 'Reset password has been sent!');
 
         }catch (Exception $th){
             return response()->json(['<h1>Sorry something went wrong!</h1>']);
         }
-        
-
-
-        // Mail::to('c11190016@john.petra.ac.id')->send(new MailNotify($data));
-        // // dd($request);
-        // // return redirect('auth.forgot-password', array('title' => 'Reset Password',
-        // // 'active' => 'reset-password'))
-        // // ->with('success', 'Reset password has been sent!')
-        // // ->with('title', 'Reset Password')
-        // // ->with('active','reset-password');
-        // return view('auth.forgot-password',[
-        //     'title' => 'Reset Password',
-        //     'active' => 'reset-password']); 
-
-         
-            
+    
     }
 
-  
+    
 
 
 }

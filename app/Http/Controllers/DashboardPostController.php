@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Models\User;
 use App\Models\Category;
+use App\Models\Pelaporan;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,12 +21,14 @@ class DashboardPostController extends Controller
      */
     public function index()
     {
-        return view('dashboard.index', [
-            'posts' => Post::where([
-                ['idpengisidata', '=', auth()->user()->id],
-                // ['user_id', '=', auth()->user()->id]
-                ])->get()
-
+        // $data=DB::select('select * from pelaporans where list_id_penyetuju LIKE "%[?]%"', [auth()->user()->id],);
+        $data=DB::select('select * from pelaporans where list_id_penyetuju LIKE "%'.auth()->user()->id.'%"');
+            // $idsoal = explode("'",$data[0]->list_id_penyetuju);
+        return view('dashboard.index',[
+            'title' => 'Dashboard',
+            'active' => 'dashboard',
+            'posts' => Pelaporan::where('idpengisidata', auth()->user()->id)->get(),
+            'penyetuju' => $data
         ]);
     }
 
@@ -201,6 +204,177 @@ class DashboardPostController extends Controller
         return redirect('/dashboard')->with('success','Laporan Berhasil di Tambahkan!');
 
     }
+
+
+    public function isiangket(Request $request,Pelaporan $post){
+        $i=0;
+        //yang perlu diganti
+      $id = auth()->user()->id;
+      $pelaporan = $request->pelaporan;
+      //2 atas
+      $data=DB::select('select * from listsoalpelaporan where nomerpelaporan = ?', [$pelaporan]);
+      $laporan = DB::select('select * from pelaporans where id = ?', [$pelaporan]);
+      $idsoal = explode(",",$data[0]->list_id_soal);
+
+      $dummy =null;
+      $querry = null;
+      for ($i=0;$i<count($idsoal);$i++){
+          $dummy = "id = ".$idsoal[$i];
+          if($i != count($idsoal)-1)
+          {
+              $dummy = $dummy." or ";
+          }
+          $querry = $querry.$dummy;
+
+        }
+
+        $soal = DB::select('select * from categories where '.$querry);
+
+      if($data[0]->status_pengisian == "belum"){
+        if($laporan[0]->idpengisidata == $id){
+            return view('dashboard.angket.isijawaban',compact('soal','pelaporan'),[
+                'post' => $post,
+                'categories' => Category::all()
+            ]);   
+        }
+        else{
+            echo("SIAPA INI KOK BISA MASUK KESINI!! ANDA TIDAK BISA MENGISI LAPORAN INI");
+        }
+      }
+      else{
+        echo("laporan ini sudah anda isi");
+      }
+    }
+    public function submit(Request $request){
+        $pelaporan= $request->get('idlaporan');
+        $jawaban= $request->get('soal');
+        $data=DB::select('select * from listsoalpelaporan where nomerpelaporan = ?', [$pelaporan]);
+        $idsoal = explode(",",$data[0]->list_id_soal);
+
+        $file = $request->file('soal');
+        $dummy =null;
+        $querry = null;
+        for ($i=0;$i<count($idsoal);$i++){
+            $dummy = "id = ".$idsoal[$i];
+            if($i != count($idsoal)-1)
+            {
+                $dummy = $dummy." or ";
+            }
+            $querry = $querry.$dummy;
+
+          }
+          $soal = DB::select('select * from categories where '.$querry);
+          for ($i=0;$i<count($soal);$i++){
+            $tipe=$soal[$i]->type;
+            if($tipe=="text"or $tipe=="number" or $tipe=="textarea" or $tipe=="number" or $tipe=="date"){
+                DB::insert('insert into jawabanform (idpelaporan, idsoal, jawaban) values (?, ?, ?)', [$pelaporan, $soal[$i]->id,$jawaban[$i]]);
+
+            }
+
+            elseif($tipe=="file"){
+                for($j=0; $j<count($file[$i]);$j++){
+                    if($file[$i][$j]){
+                        $namagambar = $file[$i][$j]->store('datagambar');
+                        DB::insert('insert into jawabanform (idpelaporan, idsoal, jawaban) values (?, ?, ?)', [$pelaporan, $soal[$i]->id,$namagambar]);}
+                    
+                }           
+             }
+             
+          }
+          DB::table('listsoalpelaporan')->where('nomerpelaporan', $pelaporan)->update(['status_pengisian' => 'sudah']);
+          DB::table('pelaporans')->where('id', $pelaporan)->update(['status_penyetuju_nomer' => '1']);
+          return redirect('/dashboard')->with('success','Laporan Berhasil di Isi!');
+        }
+
+        public function ambildata(Request $request){
+            //yang perlu diganti
+            $id = auth()->user()->id;
+            $pelaporan = $request->pelaporan;
+            // $pelaporan = $request->pelaporan;
+            //2 atas
+            $querry = null;
+            $data=DB::select('select * from listsoalpelaporan where nomerpelaporan = ?', [$pelaporan]);
+            $post = Pelaporan::where('id',$pelaporan)->first();
+            // select('select * from pelaporans where nomerpelaporan = ?', [$pelaporan]);
+            $idsoal = explode(",",$data[0]->list_id_soal);
+            
+            for ($i=0;$i<count($idsoal);$i++){
+                $dummy = "id = ".$idsoal[$i];
+                if($i != count($idsoal)-1)
+                {
+                    $dummy = $dummy." or ";
+                }
+                $querry = $querry.$dummy;
+      
+              }
+      
+              $soal = DB::select('select * from categories where '.$querry);
+              $jawaban = DB::select('select * from jawabanform INNER JOIN categories ON categories.id = jawabanform.idsoal where idpelaporan =?',[$pelaporan]);
+              $dummy = "simpan";
+              return view('dashboard.angket.viewjawaban',compact('jawaban','pelaporan','dummy'),[
+                'post' => $post
+              ]);
+            }
+
+            public function terima(request $request){
+                $idpengecek=auth()->user()->id;
+                //ganti atas
+                $dummy = DB::select('select * from pelaporans where id = ?', [$request->idlaporan]);
+                $id=explode("'",$dummy[0]->list_id_penyetuju);
+                $arry=$dummy[0]->status_penyetuju_nomer;
+                if($idpengecek==$id[$arry-1]){
+                    DB::update('update pelaporans set status_penyetuju_nomer = ? where id = ?', [$dummy[0]->status_penyetuju_nomer+1,$request->idlaporan]);
+                }else{
+                    return redirect('/dashboard')->with('success','Bukan giliran anda dalam pengecekan');
+                    
+                }
+            }
+
+            public function tolak(request $request){
+                $dummy = DB::select('select * from pelaporans where id = ?', [$request->idlaporan]);
+                $id=explode("'",$dummy[0]->list_id_penyetuju);
+                $arry=$dummy[0]->status_penyetuju_nomer;
+                if(auth()->user()->id==$id[$arry-1]){
+                $dummy = DB::select('select * from pelaporans where id = ?', [$request->idlaporan]);
+                DB::update('update pelaporans set status_penyetuju_nomer = ? , note = ? where id = ?', [$dummy[0]->status_penyetuju_nomer-1,$request->note,$request->idlaporan]);
+                return redirect('/dashboard')->with('success','Laporan Berhasil di Tolak!');
+                }
+                
+            }
+    
+            public function priview(request $request){
+                $pelaporan = 1;
+                $querry = null;
+                $data=DB::select('select * from listsoalpelaporan where nomerpelaporan = ?', [$pelaporan]);
+                $laporan = DB::select('select * from pelaporans where id = ?', [$pelaporan]);
+                $idsoal = explode(",",$data[0]->list_id_soal);
+                for ($i=0;$i<count($idsoal);$i++){
+                    $dummy = "id = ".$idsoal[$i];
+                        if($i != count($idsoal)-1)
+                        {
+                    $dummy = $dummy." or ";
+                }
+                $querry = $querry.$dummy;
+        
+              }
+        
+              $soal = DB::select('select * from categories where '.$querry);
+              $jawaban = DB::select('select * from jawabanform INNER JOIN categories ON categories.id = jawabanform.idsoal where idpelaporan =?',[$pelaporan]);
+            //   return view('hasilprint',compact('jawaban','pelaporan'));
+            //   $pdf = Pdf::loadView('form');
+        
+            $contxt = stream_context_create([
+                'ssl' => [
+                    'verify_peer' => FALSE,
+                    'verify_peer_name' => FALSE,
+                    'allow_self_signed' => TRUE,
+                ]
+            ]);
+            return View('priview',compact('jawaban','pelaporan'));
+        }
+
+
+
 
     /**
      * Display the specified resource.

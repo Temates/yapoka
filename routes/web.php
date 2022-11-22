@@ -50,13 +50,7 @@ Route::post('/logout', [LoginController::class, 'logout']);
 Route::get('/register', [RegisterController::class, 'index'])->middleware('guest');
 Route::post('/register', [RegisterController::class, 'store']);
 
-Route::get('/dashboard', function(){
-    return view('dashboard.index',[
-        'title' => 'Dashboard',
-        'active' => 'dashboard',
-        'posts' => Pelaporan::where('idpengisidata', auth()->user()->id)->get()
-    ]);
-})->middleware('auth');
+Route::get('/dashboard', [DashboardPostController::class,'index'])->middleware('auth');
 
 Route::get('/dashboard/posts/checkSlug', [DashboardPostController::class, 'checkSlug'])->middleware('auth');
 
@@ -85,8 +79,9 @@ Route::get('/forgot-password',[LoginController::class, 'resetpasspage'])->middle
  
 Route::post('/forgot-password', [LoginController::class, 'resetemail'])->middleware('guest')->name('password.email');
 
+
 Route::get('/reset-password/{token}', function ($token) {
-    return view('auth.reset-password', ['token' => $token]);
+    return view('emails.reset-password', ['token' => $token]);
 })->middleware('guest')->name('password.reset');
 
 
@@ -98,4 +93,7 @@ Route::get('/dashboard/pilihangket/add', [DashboardPostController::class, 'creat
 Route::get('/dashboard/pilihangket/addsend', [DashboardPostController::class, 'createsoal'])->middleware('admin');
 
 Route::post('/dashboard/pilihangket/send', [DashboardPostController::class, 'storeangket'])->middleware('admin');
+Route::get('/isiangket',[DashboardPostController::class, 'isiangket']);
+Route::post('/isiangket/submit',[DashboardPostController::class, 'submit']);
+Route::get('/ceklaporan',[DashboardPostController::class, 'ambildata']);
 
