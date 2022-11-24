@@ -7,6 +7,8 @@ use App\Models\Post;
 use App\Models\User;
 use App\Models\Category;
 use App\Models\UserProfile;
+use App\Models\Pelaporan;
+use Database\Factories\PelaporansFactory;
 use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 
@@ -71,6 +73,7 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
+        Pelaporan::factory(40)->create();
     }
 }
 

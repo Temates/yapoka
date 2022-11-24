@@ -55,9 +55,9 @@
                 <button class="w-100 btn btn-lg btn-primary" type="submit">Login</button>                
 
             </form>
-            <small class="text-muted d-block text-center mt-3 fs-5">
+            {{-- <small class="text-muted d-block text-center mt-3 fs-5">
                 <a href="{{ route('password.request') }}" >Forgot password?</a> 
-            </small>
+            </small> --}}
             <small class="text-muted d-block text-center mt-3 fs-5">
                 Not Registered? <a href="/register" >Register Now!</a> 
             </small>

@@ -96,4 +96,10 @@ Route::post('/dashboard/pilihangket/send', [DashboardPostController::class, 'sto
 Route::get('/isiangket',[DashboardPostController::class, 'isiangket']);
 Route::post('/isiangket/submit',[DashboardPostController::class, 'submit']);
 Route::get('/ceklaporan',[DashboardPostController::class, 'ambildata']);
+Route::post('ceklaporan/laporanditolak',[DashboardPostController::class, 'tolak']);
+Route::post('ceklaporan/laporanditerima',[DashboardPostController::class, 'terima']);
+Route::post('ceklaporan/penyimpanandata',[DashboardPostController::class, 'save']);
+Route::get('/preview',[DashboardPostController::class, 'priview']);
+Route::get('/print',[DashboardPostController::class, 'print']);
+Route::get('/revisi',[DashboardPostController::class, 'revisi']);
 

@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('note')->nullable();
             $table->integer('jumlah_penyetuju');
             $table->string('list_id_penyetuju');
+            $table->boolean('status_laporan')->default('0');
+            
             $table->timestamps();
         });
     }

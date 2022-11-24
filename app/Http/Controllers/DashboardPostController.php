@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use \Cviebrock\EloquentSluggable\Services\SlugService;
+use stdClass;
 
 class DashboardPostController extends Controller
 {
@@ -21,14 +22,34 @@ class DashboardPostController extends Controller
      */
     public function index()
     {
-        // $data=DB::select('select * from pelaporans where list_id_penyetuju LIKE "%[?]%"', [auth()->user()->id],);
-        $data=DB::select('select * from pelaporans where list_id_penyetuju LIKE "%'.auth()->user()->id.'%"');
-            // $idsoal = explode("'",$data[0]->list_id_penyetuju);
+
+
+        $data = Pelaporan::where('list_id_penyetuju', 'like', auth()->user()->id . '%')
+        ->where('status_penyetuju_nomer',1)
+        ->orWhere(function($query) {
+            $query->where('list_id_penyetuju', 'like', '__' . auth()->user()->id . '%')
+            ->where('status_penyetuju_nomer',2);
+        })
+        ->orWhere(function($query) {
+            $query->where('list_id_penyetuju', 'like', '____' . auth()->user()->id . '%')
+            ->where('status_penyetuju_nomer',3);
+        })
+        ->orWhere(function($query) {
+            $query->where('list_id_penyetuju', 'like', '______' . auth()->user()->id . '%')
+            ->where('status_penyetuju_nomer',4);
+        })
+        ->orWhere(function($query) {
+            $query->where('list_id_penyetuju', 'like', '________' . auth()->user()->id . '%')
+            ->where('status_penyetuju_nomer',4);
+        })
+        ->latest();
+
+
         return view('dashboard.index',[
             'title' => 'Dashboard',
             'active' => 'dashboard',
-            'posts' => Pelaporan::where('idpengisidata', auth()->user()->id)->get(),
-            'penyetuju' => $data
+            'posts' => Pelaporan::where('idpengisidata', auth()->user()->id)->where('status_penyetuju_nomer','<',1)->latest()->paginate(10),
+            'penyetuju' => $data->paginate(10)
         ]);
     }
 
@@ -42,17 +63,17 @@ class DashboardPostController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
-    {     
+    {
 
         return view('dashboard.angket.pilihangket',[
             'categories' => Category::all(),
             'title' => 'Buat Laporan',
-            
+
         ]);
     }
     public function createsoal(Request $request)
-    {   
-        $id = $request;  
+    {
+        $id = $request;
         $jumlahid = 0;
         $angka = null;
         for ($i=0;$i <= $request->message; $i++)
@@ -71,7 +92,7 @@ class DashboardPostController extends Controller
                         }
                     }
                 }
-                
+
 
             }
         }
@@ -91,7 +112,7 @@ class DashboardPostController extends Controller
             $tes[$i] = $soal[$i];
         }
         $users = User::all();
-        return view('dashboard.angket.create',compact('tes', 'id','users'));   
+        return view('dashboard.angket.create',compact('tes', 'id','users'));
     }
 
     /**
@@ -103,10 +124,10 @@ class DashboardPostController extends Controller
 
 
 
-    
+
     public function storeangket(Request $request)
     {
-        
+
         $angka = null;
         $dummyurutansoalcek = false;
         $listpemeriksa = null;
@@ -122,7 +143,7 @@ class DashboardPostController extends Controller
                 $validator = "terdapat nama yang sama di dua pemeriksa";
                 $error = true;
             }
-            
+
         }
         for ($i=0;$i < count($pemeriksa); $i++)
         {
@@ -130,7 +151,7 @@ class DashboardPostController extends Controller
                 $validator = "terdapat nama yang sama di pemeriksa dengan pengisi";
                 $error = true;
             }
-            
+
         }
         if (isset($idsoal) and isset($urutansoal)){
             if (count($idsoal)!= count($urutansoal)){
@@ -138,25 +159,25 @@ class DashboardPostController extends Controller
                 $error = true;
                 $dummyurutansoalcek = true;
             }
-            if ($dummyurutansoalcek==false) 
+            if ($dummyurutansoalcek==false)
 
-            {        
+            {
                 for($i=0;$i< count($idsoal);$i++){
                     for($j=$i+1;$j<count($idsoal);$j++){
                         if($urutansoal[$i]==$urutansoal[$j])
-            { 
+            {
                 $validator = "urutan soal ada yang sama";
                 $error = true;
-            } 
+            }
                 }
             }}
         }
         else{
             $validator = "kolom pengatur urutan soal belum diisi";
-            $error = true; 
+            $error = true;
         }
 
-         
+
         if($error==true){
             return redirect()->back()->withInput()->with('tes',$validator);
         }
@@ -166,14 +187,14 @@ class DashboardPostController extends Controller
 
                 for($j=0;$j<count($idsoal)-$i;$j++){
                     if($urutansoal[$j]>$urutansoal[$j+1])
-            { 
+            {
                 $dummy=$urutansoal[$j];
                 $urutansoal[$j]=$urutansoal[$j+1];
                 $urutansoal[$j+1]=$dummy;
                 $dummy=$idsoal[$j];
                 $idsoal[$j]=$idsoal[$j+1];
-                $idsoal[$j+1]=$dummy;  
-            } 
+                $idsoal[$j+1]=$dummy;
+            }
                 }
             }
 
@@ -198,7 +219,7 @@ class DashboardPostController extends Controller
               DB::insert('insert into pelaporans (title, idpengisidata, status_penyetuju_nomer, jumlah_penyetuju,list_id_penyetuju) values (?, ?, 0, ?, ?)', [$request->title, $pengisi,  $jumlahpenyetuju, $listpemeriksa]);
               $idlaporan = DB::getPdo()->lastInsertId();
                DB::insert('insert into listsoalpelaporan (nomerpelaporan, status_pengisian, list_id_soal) values (?, ?, ?)', [$idlaporan, 'belum',$angka]);
-            
+
 
         }
         return redirect('/dashboard')->with('success','Laporan Berhasil di Tambahkan!');
@@ -235,14 +256,19 @@ class DashboardPostController extends Controller
             return view('dashboard.angket.isijawaban',compact('soal','pelaporan'),[
                 'post' => $post,
                 'categories' => Category::all()
-            ]);   
+            ]);
         }
         else{
             echo("SIAPA INI KOK BISA MASUK KESINI!! ANDA TIDAK BISA MENGISI LAPORAN INI");
         }
       }
       else{
-        echo("laporan ini sudah anda isi");
+        
+
+        $soal = DB::select('select * from categories where '.$querry);
+        $jawaban = DB::select('select * from jawabanform INNER JOIN categories ON categories.id = jawabanform.idsoal where idpelaporan =?',[$pelaporan]);
+        $dummy = "simpan";
+        return view('dashboard.angket.revisijawaban',compact('jawaban','pelaporan','dummy'));
       }
     }
     public function submit(Request $request){
@@ -276,10 +302,10 @@ class DashboardPostController extends Controller
                     if($file[$i][$j]){
                         $namagambar = $file[$i][$j]->store('datagambar');
                         DB::insert('insert into jawabanform (idpelaporan, idsoal, jawaban) values (?, ?, ?)', [$pelaporan, $soal[$i]->id,$namagambar]);}
-                    
-                }           
+
+                }
              }
-             
+
           }
           DB::table('listsoalpelaporan')->where('nomerpelaporan', $pelaporan)->update(['status_pengisian' => 'sudah']);
           DB::table('pelaporans')->where('id', $pelaporan)->update(['status_penyetuju_nomer' => '1']);
@@ -297,7 +323,7 @@ class DashboardPostController extends Controller
             $post = Pelaporan::where('id',$pelaporan)->first();
             // select('select * from pelaporans where nomerpelaporan = ?', [$pelaporan]);
             $idsoal = explode(",",$data[0]->list_id_soal);
-            
+
             for ($i=0;$i<count($idsoal);$i++){
                 $dummy = "id = ".$idsoal[$i];
                 if($i != count($idsoal)-1)
@@ -305,15 +331,46 @@ class DashboardPostController extends Controller
                     $dummy = $dummy." or ";
                 }
                 $querry = $querry.$dummy;
-      
+
               }
-      
+
               $soal = DB::select('select * from categories where '.$querry);
               $jawaban = DB::select('select * from jawabanform INNER JOIN categories ON categories.id = jawabanform.idsoal where idpelaporan =?',[$pelaporan]);
               $dummy = "simpan";
               return view('dashboard.angket.viewjawaban',compact('jawaban','pelaporan','dummy'),[
                 'post' => $post
               ]);
+            }
+
+            public function save(request $request){
+                $idpengecek=auth()->user()->id;
+                //ganti atas
+                $dummy = DB::select('select * from pelaporan where id = ?', [$request->idlaporan]);
+                $id=explode("'",$dummy[0]->list_id_penyetuju);
+                $arry=$dummy[0]->status_penyetuju_nomer;
+                $querry = null;
+                    $data=DB::select('select * from listsoalpelaporan where nomerpelaporan = ?', [$request->idlaporan]);
+                $idsoal = explode(",",$data[0]->list_id_soal);
+                for ($i=0;$i<count($idsoal);$i++){
+                    $dummy = "id = ".$idsoal[$i];
+                    if($i != count($idsoal)-1)
+                    {
+                        $dummy = $dummy." or ";
+                    }
+                    $querry = $querry.$dummy;
+
+                }
+                $soal = DB::select('select * from posts where '.$querry);
+                if($idpengecek==$id[$arry-1]){
+                    for($i=0;$i<count($soal);$i++){
+                        if($soal[$i]->type != "file"){
+                            DB::update('update jawabanform set jawaban = ? where idpelaporan = ? and idsoal = ?', [$request->get($soal[$i]->id),$request->idlaporan,$soal[$i]->id]);
+                        }
+                    }
+                    DB::update('update pelaporan set status_penyetuju_nomer = ? where id = ?', [$dummy[0]->status_penyetuju_nomer+1,$request->idlaporan]);
+                    }else{
+                    echo("bukan giliran anda dalam pengecekan");
+                }
             }
 
             public function terima(request $request){
@@ -324,24 +381,30 @@ class DashboardPostController extends Controller
                 $arry=$dummy[0]->status_penyetuju_nomer;
                 if($idpengecek==$id[$arry-1]){
                     DB::update('update pelaporans set status_penyetuju_nomer = ? where id = ?', [$dummy[0]->status_penyetuju_nomer+1,$request->idlaporan]);
+                    return redirect('/dashboard')->with('success','Bukan giliran anda dalam pengecekan');
+
                 }else{
                     return redirect('/dashboard')->with('success','Bukan giliran anda dalam pengecekan');
-                    
+
                 }
             }
 
             public function tolak(request $request){
+                $idpengecek=auth()->user()->id;
                 $dummy = DB::select('select * from pelaporans where id = ?', [$request->idlaporan]);
                 $id=explode("'",$dummy[0]->list_id_penyetuju);
                 $arry=$dummy[0]->status_penyetuju_nomer;
-                if(auth()->user()->id==$id[$arry-1]){
+                if($idpengecek==$id[$arry-1]){
                 $dummy = DB::select('select * from pelaporans where id = ?', [$request->idlaporan]);
                 DB::update('update pelaporans set status_penyetuju_nomer = ? , note = ? where id = ?', [$dummy[0]->status_penyetuju_nomer-1,$request->note,$request->idlaporan]);
                 return redirect('/dashboard')->with('success','Laporan Berhasil di Tolak!');
+                }else{
+                    return redirect('/dashboard')->with('success','bukan giliran anda dalam pengecekan!');
+
                 }
-                
+
             }
-    
+
             public function priview(request $request){
                 $pelaporan = 1;
                 $querry = null;
@@ -355,14 +418,14 @@ class DashboardPostController extends Controller
                     $dummy = $dummy." or ";
                 }
                 $querry = $querry.$dummy;
-        
+
               }
-        
+
               $soal = DB::select('select * from categories where '.$querry);
               $jawaban = DB::select('select * from jawabanform INNER JOIN categories ON categories.id = jawabanform.idsoal where idpelaporan =?',[$pelaporan]);
             //   return view('hasilprint',compact('jawaban','pelaporan'));
             //   $pdf = Pdf::loadView('form');
-        
+
             $contxt = stream_context_create([
                 'ssl' => [
                     'verify_peer' => FALSE,
@@ -373,7 +436,43 @@ class DashboardPostController extends Controller
             return View('priview',compact('jawaban','pelaporan'));
         }
 
+        public function print(request $request){
+            $pelaporan = $request->get('pelaporan');
+            $querry = null;
+            $data=DB::select('select * from listsoalpelaporan where nomerpelaporan = ?', [$pelaporan]);
+            $laporan = DB::select('select * from pelaporan where id = ?', [$pelaporan]);
+            $idsoal = explode(",",$data[0]->list_id_soal);
+            for ($i=0;$i<count($idsoal);$i++){
+                $dummy = "id = ".$idsoal[$i];
+                    if($i != count($idsoal)-1)
+                    {
+                $dummy = $dummy." or ";
+            }
+            $querry = $querry.$dummy;
+            }
+          }
+          public function revisi(request $request){
+            $id = auth()->user()->id;
+            $pelaporan = $request->pelaporan;
+            $querry = null;
+            $data=DB::select('select * from listsoalpelaporan where nomerpelaporan = ?', [$pelaporan]);
+            $laporan = DB::select('select * from pelaporan where id = ?', [$pelaporan]);
+            $idsoal = explode(",",$data[0]->list_id_soal);
+            for ($i=0;$i<count($idsoal);$i++){
+                $dummy = "id = ".$idsoal[$i];
+                if($i != count($idsoal)-1)
+                {
+                    $dummy = $dummy." or ";
+                }
+                $querry = $querry.$dummy;
 
+              }
+
+              $soal = DB::select('select * from posts where '.$querry);
+              $jawaban = DB::select('select * from jawabanform INNER JOIN posts ON posts.id = jawabanform.idsoal where idpelaporan =?',[$pelaporan]);
+              $dummy = "simpan";
+              return view('dashboard.angket.revisijawaban',compact('jawaban','pelaporan','dummy'));
+            }
 
 
     /**
@@ -419,15 +518,15 @@ class DashboardPostController extends Controller
             // 'image'=> 'image|file|max:8192',
             'image'=> 'image|file|max:4096',
             'body' => 'required'
-            
+
         ];
 
-        
+
 
         if($request->slug != $post->slug ){
-            $rules['slug'] = 'required|unique:posts';            
+            $rules['slug'] = 'required|unique:posts';
         }
-        
+
 
         $validatedData = $request->validate($rules);
 
@@ -466,9 +565,9 @@ class DashboardPostController extends Controller
     public function checkSlug(Request $request)
     {
         $slug = SlugService::createSlug(Post::class, 'slug', $request->title);
-        
+
         return response()->json(['slug' => $slug]);
-        
+
     }
 
 }
