@@ -22,7 +22,7 @@ class PelaporanFactory extends Factory
             'status_penyetuju_nomer' => mt_rand(0,2),
             'note' => fake()->paragraph(mt_rand(1,2)),
             'jumlah_penyetuju' => '2',
-            'list_id_penyetuju' =>   mt_rand(1,2) . "'" . mt_rand(3,4)          // 'body' => '<p>'. implode('</p><p>', fake()->paragraphs(mt_rand(5,10)), '</p>'),
+            'list_id_penyetuju' =>   mt_rand(1,6) . "'" . mt_rand(7,12)          // 'body' => '<p>'. implode('</p><p>', fake()->paragraphs(mt_rand(5,10)), '</p>'),
             // 'body' => collect(fake()->paragraphs(mt_rand(5,10)))
             //             ->map(function($p){
             //                 return "<p>$p</p>";

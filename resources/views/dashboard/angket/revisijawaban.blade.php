@@ -12,7 +12,8 @@
                     <input type="hidden" name="idlaporan" value="{{$pelaporan}}">
                     <input type="hidden" name="note" id="note">
                     {{-- bawah nanti isi judul e ndooooo --}}
-                    <input type="text" name="title" >
+                    <label for="title" >Judul Laporan</label>
+                    <input type="text"  id="title" name="title"  value="{{ $post->title }}"required autofocus >
                 <table>
 
                 @for($i=0;$i<count($jawaban);$i++)

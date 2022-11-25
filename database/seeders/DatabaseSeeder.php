@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
             'is_admin' => '1'
         ]);
 
-        User::factory(3)->create();
+        User::factory(11)->create();
         UserProfile::factory(4)->create();
         // User::create([
         //     'name' => 'Sandhika galih',

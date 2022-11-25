@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use stdClass;
 use App\Models\Post;
 use App\Models\User;
 use App\Models\Category;
@@ -9,9 +10,9 @@ use App\Models\Pelaporan;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use \Cviebrock\EloquentSluggable\Services\SlugService;
-use stdClass;
 
 class DashboardPostController extends Controller
 {
@@ -24,26 +25,61 @@ class DashboardPostController extends Controller
     {
 
 
-        $data = Pelaporan::where('list_id_penyetuju', 'like', auth()->user()->id . '%')
-        ->where('status_penyetuju_nomer',1)
-        ->orWhere(function($query) {
-            $query->where('list_id_penyetuju', 'like', '__' . auth()->user()->id . '%')
-            ->where('status_penyetuju_nomer',2);
+        $data = Pelaporan::where(function($query){
+            $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
+            ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
+            ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%");
         })
-        ->orWhere(function($query) {
-            $query->where('list_id_penyetuju', 'like', '____' . auth()->user()->id . '%')
-            ->where('status_penyetuju_nomer',3);
-        })
-        ->orWhere(function($query) {
-            $query->where('list_id_penyetuju', 'like', '______' . auth()->user()->id . '%')
-            ->where('status_penyetuju_nomer',4);
-        })
-        ->orWhere(function($query) {
-            $query->where('list_id_penyetuju', 'like', '________' . auth()->user()->id . '%')
-            ->where('status_penyetuju_nomer',4);
-        })
+        // ->where('status_penyetuju_nomer',2)
+        // ->orWhere(function($query){
+        //     $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%");
+        // })
+        // ->where('status_penyetuju_nomer',3)
+        // ->orWhere(function($query){
+        //     $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
+        //     ->orwhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%")
+        //     ;
+        // })->where('status_penyetuju_nomer',4)
+        // ->orWhere(function($query){
+        //     $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%")
+        //     ->where('status_penyetuju_nomer',5);
+        // })
+        // ->orWhere(function($query){
+        //     $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%")
+        //     ->where('status_penyetuju_nomer',6);
+        // })
+        // ->orWhere(function($query){
+        //     $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%")
+        //     ->where('status_penyetuju_nomer',7);
+        // })
+        // ->orWhere(function($query){
+        //     $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%")
+        //     ->where('status_penyetuju_nomer',8);
+        // })
+        // ->orWhere(function($query){
+        //     $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%")
+        //     ->where('status_penyetuju_nomer',9);
+        // })
+        // ->orWhere(function($query){
+        //     $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%")
+        //     ->where('status_penyetuju_nomer',10);
+        // })
         ->latest();
-
 
         return view('dashboard.index',[
             'title' => 'Dashboard',
@@ -112,6 +148,7 @@ class DashboardPostController extends Controller
             $tes[$i] = $soal[$i];
         }
         $users = User::all();
+        // Log::info('User '. auth()->user()->email .' Telah Membuat Soal!'); 
         return view('dashboard.angket.create',compact('tes', 'id','users'));
     }
 
@@ -440,7 +477,7 @@ class DashboardPostController extends Controller
             $pelaporan = $request->get('pelaporan');
             $querry = null;
             $data=DB::select('select * from listsoalpelaporan where nomerpelaporan = ?', [$pelaporan]);
-            $laporan = DB::select('select * from pelaporan where id = ?', [$pelaporan]);
+            $laporan = DB::select('select * from pelaporans where id = ?', [$pelaporan]);
             $idsoal = explode(",",$data[0]->list_id_soal);
             for ($i=0;$i<count($idsoal);$i++){
                 $dummy = "id = ".$idsoal[$i];
@@ -456,7 +493,7 @@ class DashboardPostController extends Controller
             $pelaporan = $request->pelaporan;
             $querry = null;
             $data=DB::select('select * from listsoalpelaporan where nomerpelaporan = ?', [$pelaporan]);
-            $laporan = DB::select('select * from pelaporan where id = ?', [$pelaporan]);
+            $laporan = DB::select('select * from pelaporans where id = ?', [$pelaporan]);
             $idsoal = explode(",",$data[0]->list_id_soal);
             for ($i=0;$i<count($idsoal);$i++){
                 $dummy = "id = ".$idsoal[$i];
@@ -469,10 +506,45 @@ class DashboardPostController extends Controller
               }
 
               $soal = DB::select('select * from posts where '.$querry);
-              $jawaban = DB::select('select * from jawabanform INNER JOIN posts ON posts.id = jawabanform.idsoal where idpelaporan =?',[$pelaporan]);
+              $jawaban = DB::select('select * from jawabanform INNER JOIN categories ON categories.id = jawabanform.idsoal where idpelaporan =?',[$pelaporan]);
               $dummy = "simpan";
               return view('dashboard.angket.revisijawaban',compact('jawaban','pelaporan','dummy'));
             }
+            public function updaterevisi(request $request){
+                $idpengisi=1;
+                //ganti atas
+                $querry = null;
+                $dummy = DB::select('select * from pelaporans where id = ?', [$request->idlaporan]);
+                $id=explode("'",$dummy[0]->list_id_penyetuju);
+                $arry=$dummy[0]->status_penyetuju_nomer;
+                $data=DB::select('select * from listsoalpelaporan where nomerpelaporan = ?', [$request->idlaporan]);
+                $idsoal = explode(",",$data[0]->list_id_soal);
+                for ($i=0;$i<count($idsoal);$i++){
+                    $dummy = "id = ".$idsoal[$i];
+                    if($i != count($idsoal)-1)
+                    {
+                        $dummy = $dummy." or ";
+                    }
+                    $querry = $querry.$dummy;
+            
+                  }
+                  $soal = DB::select('select * from categories where '.$querry);
+                  if($arry==0){
+                    if($idpengisi==$dummy[0]->idpengisidata){
+                    for($i=0;$i<count($soal);$i++){
+                        if($soal[$i]->type != "file"){
+                            DB::update('update jawabanform set jawaban = ? where idpelaporan = ? and idsoal = ?', [$request->get($soal[$i]->id),$request->idlaporan,$soal[$i]->id]);
+                        }
+                    }
+                    DB::update('update pelaporans set status_penyetuju_nomer = ? where id = ?', [$dummy[0]->status_penyetuju_nomer+1,$request->idlaporan]);                
+                    }else{
+                    echo("bukan giliran anda dalam pengecekan");
+                }
+            }
+            else{
+                echo("laporan sedang di cek, tunggu terima revisi untuk ganti isi laporan");
+            }
+        }
 
 
     /**

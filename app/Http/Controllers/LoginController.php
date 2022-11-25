@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\Mail;
+use App\Models\User;
 use App\Mail\MailNotify;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
 
 class LoginController extends Controller
 {
@@ -31,22 +32,24 @@ class LoginController extends Controller
         
  
         if (Auth::attempt($credentials)) {
-            $request->session()->regenerate(); 
+            $request->session()->regenerate();
+            Log::info('User '. $request->email .' Login!'); 
             return redirect()->intended('dashboard');
         }
+        Log::info('User '. $request->email .' Gagal Login!'); 
         return back()->with('loginError', 'Login Failed!');
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',
         ])->onlyInput('email');
     }
     public function logout(Request $request){
+        Log::info('User '. $request->email .' Log Out!'); 
 
         Auth::logout();
  
         $request->session()->invalidate();
      
         $request->session()->regenerateToken();
-     
         return redirect('/');
     }
   

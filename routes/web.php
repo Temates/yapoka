@@ -102,4 +102,5 @@ Route::post('ceklaporan/penyimpanandata',[DashboardPostController::class, 'save'
 Route::get('/preview',[DashboardPostController::class, 'priview']);
 Route::get('/print',[DashboardPostController::class, 'print']);
 Route::get('/revisi',[DashboardPostController::class, 'revisi']);
+Route::post('/revisi/submit',[DashboardPostController::class, 'updaterevisi']);
 
