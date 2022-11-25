@@ -25,29 +25,20 @@ class DashboardPostController extends Controller
     {
 
 
-        $data = Pelaporan::where(function($query){
-            $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
-            ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
-            ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%");
-        })
+        $data = Pelaporan::where('idsekarang',auth()->user()->id)
+        ->where('confirmed', '!=', 1)
+        ->latest();
+        
+        //     $data = Pelaporan::where(function($query){
+        //     $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%");
+        // })
         // ->where('status_penyetuju_nomer',2)
         // ->orWhere(function($query){
         //     $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
         //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
         //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%");
-        // })
-        // ->where('status_penyetuju_nomer',3)
-        // ->orWhere(function($query){
-        //     $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
-        //     ->orwhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
-        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%")
-        //     ;
-        // })->where('status_penyetuju_nomer',4)
-        // ->orWhere(function($query){
-        //     $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
-        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
-        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%")
-        //     ->where('status_penyetuju_nomer',5);
         // })
         // ->orWhere(function($query){
         //     $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
@@ -55,31 +46,7 @@ class DashboardPostController extends Controller
         //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%")
         //     ->where('status_penyetuju_nomer',6);
         // })
-        // ->orWhere(function($query){
-        //     $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
-        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
-        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%")
-        //     ->where('status_penyetuju_nomer',7);
-        // })
-        // ->orWhere(function($query){
-        //     $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
-        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
-        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%")
-        //     ->where('status_penyetuju_nomer',8);
-        // })
-        // ->orWhere(function($query){
-        //     $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
-        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
-        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%")
-        //     ->where('status_penyetuju_nomer',9);
-        // })
-        // ->orWhere(function($query){
-        //     $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
-        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
-        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%")
-        //     ->where('status_penyetuju_nomer',10);
-        // })
-        ->latest();
+        // ->latest();
 
         return view('dashboard.index',[
             'title' => 'Dashboard',
@@ -88,9 +55,6 @@ class DashboardPostController extends Controller
             'penyetuju' => $data->paginate(10)
         ]);
     }
-
-
-
 
 
     /**
@@ -148,7 +112,6 @@ class DashboardPostController extends Controller
             $tes[$i] = $soal[$i];
         }
         $users = User::all();
-        // Log::info('User '. auth()->user()->email .' Telah Membuat Soal!'); 
         return view('dashboard.angket.create',compact('tes', 'id','users'));
     }
 
@@ -253,11 +216,12 @@ class DashboardPostController extends Controller
                          }
                       }
                 $jumlahpenyetuju = count($pemeriksa);
-              DB::insert('insert into pelaporans (title, idpengisidata, status_penyetuju_nomer, jumlah_penyetuju,list_id_penyetuju) values (?, ?, 0, ?, ?)', [$request->title, $pengisi,  $jumlahpenyetuju, $listpemeriksa]);
+              DB::insert('insert into pelaporans (title, idpengisidata, status_penyetuju_nomer, jumlah_penyetuju,list_id_penyetuju,idsekarang) values (?, ?, 0, ?, ?, ?)', [$request->title, $pengisi,  $jumlahpenyetuju, $listpemeriksa,$idlaporan = DB::getPdo()->lastInsertId()]);
               $idlaporan = DB::getPdo()->lastInsertId();
                DB::insert('insert into listsoalpelaporan (nomerpelaporan, status_pengisian, list_id_soal) values (?, ?, ?)', [$idlaporan, 'belum',$angka]);
-
-
+               Log::info('User '. auth()->user()->email .' Telah Membuat Laporan dengan ID = ' . $idlaporan . '!'); 
+              
+            
         }
         return redirect('/dashboard')->with('success','Laporan Berhasil di Tambahkan!');
 
@@ -273,7 +237,7 @@ class DashboardPostController extends Controller
       $data=DB::select('select * from listsoalpelaporan where nomerpelaporan = ?', [$pelaporan]);
       $laporan = DB::select('select * from pelaporans where id = ?', [$pelaporan]);
       $idsoal = explode(",",$data[0]->list_id_soal);
-
+      $post = Pelaporan::where('id',$request->pelaporan)->first();
       $dummy =null;
       $querry = null;
       for ($i=0;$i<count($idsoal);$i++){
@@ -305,7 +269,9 @@ class DashboardPostController extends Controller
         $soal = DB::select('select * from categories where '.$querry);
         $jawaban = DB::select('select * from jawabanform INNER JOIN categories ON categories.id = jawabanform.idsoal where idpelaporan =?',[$pelaporan]);
         $dummy = "simpan";
-        return view('dashboard.angket.revisijawaban',compact('jawaban','pelaporan','dummy'));
+        return view('dashboard.angket.revisijawaban',compact('jawaban','pelaporan','dummy'),[
+            'post' => $post
+          ] );
       }
     }
     public function submit(Request $request){
@@ -313,7 +279,8 @@ class DashboardPostController extends Controller
         $jawaban= $request->get('soal');
         $data=DB::select('select * from listsoalpelaporan where nomerpelaporan = ?', [$pelaporan]);
         $idsoal = explode(",",$data[0]->list_id_soal);
-
+        $datapelaporan=DB::select('select * from pelaporans where id = ?', [$pelaporan]);
+        $id=explode("'",$datapelaporan[0]->list_id_penyetuju);
         $file = $request->file('soal');
         $dummy =null;
         $querry = null;
@@ -331,7 +298,7 @@ class DashboardPostController extends Controller
             $tipe=$soal[$i]->type;
             if($tipe=="text"or $tipe=="number" or $tipe=="textarea" or $tipe=="number" or $tipe=="date"){
                 DB::insert('insert into jawabanform (idpelaporan, idsoal, jawaban) values (?, ?, ?)', [$pelaporan, $soal[$i]->id,$jawaban[$i]]);
-
+                Log::info('User '. auth()->user()->email .' Telah Mengisi Laporan Dengan ID = ' . $pelaporan); 
             }
 
             elseif($tipe=="file"){
@@ -339,13 +306,15 @@ class DashboardPostController extends Controller
                     if($file[$i][$j]){
                         $namagambar = $file[$i][$j]->store('datagambar');
                         DB::insert('insert into jawabanform (idpelaporan, idsoal, jawaban) values (?, ?, ?)', [$pelaporan, $soal[$i]->id,$namagambar]);}
+                        Log::info('User '. auth()->user()->email .' Telah Mengisi Laporan Dengan ID = ' . $pelaporan); 
+
 
                 }
              }
 
           }
           DB::table('listsoalpelaporan')->where('nomerpelaporan', $pelaporan)->update(['status_pengisian' => 'sudah']);
-          DB::table('pelaporans')->where('id', $pelaporan)->update(['status_penyetuju_nomer' => '1']);
+          DB::update('update pelaporans set status_penyetuju_nomer = ?,idsekarang = ? where id = ?', [$datapelaporan[0]->status_penyetuju_nomer+1,$id[0] ,$request->idlaporan]);
           return redirect('/dashboard')->with('success','Laporan Berhasil di Isi!');
         }
 
@@ -373,8 +342,8 @@ class DashboardPostController extends Controller
 
               $soal = DB::select('select * from categories where '.$querry);
               $jawaban = DB::select('select * from jawabanform INNER JOIN categories ON categories.id = jawabanform.idsoal where idpelaporan =?',[$pelaporan]);
-              $dummy = "simpan";
-              return view('dashboard.angket.viewjawaban',compact('jawaban','pelaporan','dummy'),[
+              
+              return view('dashboard.angket.viewjawaban',compact('jawaban','pelaporan'),[
                 'post' => $post
               ]);
             }
@@ -382,9 +351,9 @@ class DashboardPostController extends Controller
             public function save(request $request){
                 $idpengecek=auth()->user()->id;
                 //ganti atas
-                $dummy = DB::select('select * from pelaporan where id = ?', [$request->idlaporan]);
-                $id=explode("'",$dummy[0]->list_id_penyetuju);
-                $arry=$dummy[0]->status_penyetuju_nomer;
+                $datapelaporan = DB::select('select * from pelaporanS where id = ?', [$request->idlaporan]);
+                $id=explode("'",$datapelaporan[0]->list_id_penyetuju);
+                $arry=$datapelaporan[0]->status_penyetuju_nomer;
                 $querry = null;
                     $data=DB::select('select * from listsoalpelaporan where nomerpelaporan = ?', [$request->idlaporan]);
                 $idsoal = explode(",",$data[0]->list_id_soal);
@@ -397,14 +366,16 @@ class DashboardPostController extends Controller
                     $querry = $querry.$dummy;
 
                 }
-                $soal = DB::select('select * from posts where '.$querry);
+                $soal = DB::select('select * from categories where '.$querry);
                 if($idpengecek==$id[$arry-1]){
                     for($i=0;$i<count($soal);$i++){
                         if($soal[$i]->type != "file"){
                             DB::update('update jawabanform set jawaban = ? where idpelaporan = ? and idsoal = ?', [$request->get($soal[$i]->id),$request->idlaporan,$soal[$i]->id]);
                         }
                     }
-                    DB::update('update pelaporan set status_penyetuju_nomer = ? where id = ?', [$dummy[0]->status_penyetuju_nomer+1,$request->idlaporan]);
+                    DB::update('update pelaporan set status_penyetuju_nomer = ?,idsekarang = ? where id = ?', [$datapelaporan[0]->status_penyetuju_nomer+1,$id[$datapelaporan[0]->status_penyetuju_nomer] ,$request->idlaporan]);
+                    Log::info('User '. auth()->user()->email .' Telah Menerima Laporan dengan ID = ' . $request->idlaporan . '!'); 
+
                     }else{
                     echo("bukan giliran anda dalam pengecekan");
                 }
@@ -417,8 +388,16 @@ class DashboardPostController extends Controller
                 $id=explode("'",$dummy[0]->list_id_penyetuju);
                 $arry=$dummy[0]->status_penyetuju_nomer;
                 if($idpengecek==$id[$arry-1]){
-                    DB::update('update pelaporans set status_penyetuju_nomer = ? where id = ?', [$dummy[0]->status_penyetuju_nomer+1,$request->idlaporan]);
-                    return redirect('/dashboard')->with('success','Bukan giliran anda dalam pengecekan');
+                    if(isset($id[$arry])){
+                        DB::update('update pelaporans set status_penyetuju_nomer = ?,idsekarang = ? where id = ?', [$dummy[0]->status_penyetuju_nomer+1,$id[$dummy[0]->status_penyetuju_nomer],$request->idlaporan]);
+                        Log::info('User '. auth()->user()->email .' Telah Menerima Laporan dengan ID = ' . $request->idlaporan . '!'); 
+                    }
+                    else{
+                        DB::update('update pelaporans set status_penyetuju_nomer = ?, confirmed= ? where id = ?', [$dummy[0]->status_penyetuju_nomer+1,true,$request->idlaporan]);
+                        Log::info('User '. auth()->user()->email .' Telah Menerima Laporan dengan ID = ' . $request->idlaporan . 'dan Laporan sudah Selesai!'); 
+                        
+                    }
+                    return redirect('/dashboard')->with('success','Berhasil di Setujui');
 
                 }else{
                     return redirect('/dashboard')->with('success','Bukan giliran anda dalam pengecekan');
@@ -433,7 +412,9 @@ class DashboardPostController extends Controller
                 $arry=$dummy[0]->status_penyetuju_nomer;
                 if($idpengecek==$id[$arry-1]){
                 $dummy = DB::select('select * from pelaporans where id = ?', [$request->idlaporan]);
-                DB::update('update pelaporans set status_penyetuju_nomer = ? , note = ? where id = ?', [$dummy[0]->status_penyetuju_nomer-1,$request->note,$request->idlaporan]);
+                DB::update('update pelaporans set status_penyetuju_nomer = ? , note = ?,idsekarang= ? where id = ?', ['0',$request->note,$dummy[0]->idpengisidata,$request->idlaporan]);
+                Log::info('User '. auth()->user()->email .' Telah Menolak Laporan dengan ID = ' . $request->idlaporan . '!'); 
+
                 return redirect('/dashboard')->with('success','Laporan Berhasil di Tolak!');
                 }else{
                     return redirect('/dashboard')->with('success','bukan giliran anda dalam pengecekan!');
@@ -488,6 +469,7 @@ class DashboardPostController extends Controller
             $querry = $querry.$dummy;
             }
           }
+
           public function revisi(request $request){
             $id = auth()->user()->id;
             $pelaporan = $request->pelaporan;
@@ -505,18 +487,18 @@ class DashboardPostController extends Controller
 
               }
 
-              $soal = DB::select('select * from posts where '.$querry);
+              $soal = DB::select('select * from categories where '.$querry);
               $jawaban = DB::select('select * from jawabanform INNER JOIN categories ON categories.id = jawabanform.idsoal where idpelaporan =?',[$pelaporan]);
-              $dummy = "simpan";
+              $dummy = $laporan[0]->note;
               return view('dashboard.angket.revisijawaban',compact('jawaban','pelaporan','dummy'));
             }
             public function updaterevisi(request $request){
                 $idpengisi=1;
                 //ganti atas
                 $querry = null;
-                $dummy = DB::select('select * from pelaporans where id = ?', [$request->idlaporan]);
-                $id=explode("'",$dummy[0]->list_id_penyetuju);
-                $arry=$dummy[0]->status_penyetuju_nomer;
+                $datapelaporan = DB::select('select * from pelaporans where id = ?', [$request->idlaporan]);
+                $id=explode("'",$datapelaporan[0]->list_id_penyetuju);
+                $arry=$datapelaporan[0]->status_penyetuju_nomer;
                 $data=DB::select('select * from listsoalpelaporan where nomerpelaporan = ?', [$request->idlaporan]);
                 $idsoal = explode(",",$data[0]->list_id_soal);
                 for ($i=0;$i<count($idsoal);$i++){
@@ -530,13 +512,15 @@ class DashboardPostController extends Controller
                   }
                   $soal = DB::select('select * from categories where '.$querry);
                   if($arry==0){
-                    if($idpengisi==$dummy[0]->idpengisidata){
+                    if($idpengisi==$datapelaporan[0]->idpengisidata){
                     for($i=0;$i<count($soal);$i++){
                         if($soal[$i]->type != "file"){
                             DB::update('update jawabanform set jawaban = ? where idpelaporan = ? and idsoal = ?', [$request->get($soal[$i]->id),$request->idlaporan,$soal[$i]->id]);
                         }
                     }
-                    DB::update('update pelaporans set status_penyetuju_nomer = ? where id = ?', [$dummy[0]->status_penyetuju_nomer+1,$request->idlaporan]);                
+                    DB::update('update pelaporans set status_penyetuju_nomer = ?,idsekarang = ? where id = ?', [$datapelaporan[0]->status_penyetuju_nomer+1,$id[0],$request->idlaporan]);
+                    Log::info('User '. auth()->user()->email .' Telah Melakukan Revisi pada Laporan dengan ID = ' . $request->idlaporan . '!'); 
+                    return redirect('/dashboard')->with('success','Laporan Berhasil di Revisi!');
                     }else{
                     echo("bukan giliran anda dalam pengecekan");
                 }
@@ -553,93 +537,6 @@ class DashboardPostController extends Controller
      * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function show(Post $post)
-    {
-        return view('dashboard.posts.show', [
-            'post' => $post
-        ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Post  $post
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Post $post)
-    {
-        return view('dashboard.posts.edit',[
-            'post' => $post,
-            'categories' => Category::all()
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Post  $post
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Post $post)
-    {
-
-        $rules = [
-            'title' => 'required|max:255',
-            'category_id' => 'required',
-            // 'image'=> 'image|file|max:8192',
-            'image'=> 'image|file|max:4096',
-            'body' => 'required'
-
-        ];
-
-
-
-        if($request->slug != $post->slug ){
-            $rules['slug'] = 'required|unique:posts';
-        }
-
-
-        $validatedData = $request->validate($rules);
-
-        if($request->file('image')){
-            if($request->oldImage){
-                Storage::delete([$request->oldImage, 'otherFile']);
-
-            }
-            $validatedData['image'] = $request->file('image')->store('post-images');
-        }
-
-        $validatedData['user_id'] = auth()->user()->id;
-        $validatedData['excerpt'] = Str::limit(strip_tags($request->body),'200');
-
-        Post::where('id', $post->id)
-            ->update($validatedData);
-        return redirect('/dashboard/posts')->with('success','Post has been updated!');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Post  $post
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Post $post)
-    {
-        if($post->image){
-            Storage::delete($post->image);
-
-        }
-        Post::destroy($post->id);
-        return redirect('/dashboard/posts')->with('success','Post has been deleted!');
-    }
-
-    public function checkSlug(Request $request)
-    {
-        $slug = SlugService::createSlug(Post::class, 'slug', $request->title);
-
-        return response()->json(['slug' => $slug]);
-
-    }
+    
 
 }

@@ -16,13 +16,16 @@ class PelaporanFactory extends Factory
      */
     public function definition()
     {
+        $rand_val = fake()->numberBetween(1, 4);
         return [
-            'idpengisidata' => fake()->numberBetween(1, 4),
+            'idpengisidata' => $rand_val,
             'title' => fake()->sentence(mt_rand(2,8)),
             'status_penyetuju_nomer' => mt_rand(0,2),
             'note' => fake()->paragraph(mt_rand(1,2)),
             'jumlah_penyetuju' => '2',
-            'list_id_penyetuju' =>   mt_rand(1,6) . "'" . mt_rand(7,12)          // 'body' => '<p>'. implode('</p><p>', fake()->paragraphs(mt_rand(5,10)), '</p>'),
+            'list_id_penyetuju' =>   mt_rand(1,6) . "'" . mt_rand(7,12),
+            'idsekarang' => $rand_val
+            // 'body' => '<p>'. implode('</p><p>', fake()->paragraphs(mt_rand(5,10)), '</p>'),
             // 'body' => collect(fake()->paragraphs(mt_rand(5,10)))
             //             ->map(function($p){
             //                 return "<p>$p</p>";

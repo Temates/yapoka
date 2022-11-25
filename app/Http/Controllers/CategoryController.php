@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class CategoryController extends Controller
 {
@@ -39,6 +40,8 @@ class CategoryController extends Controller
         }
         $validatedData = $request->validate($data);
         Category::create($validatedData);
+        Log::info('User '. auth()->user()->email .' Telah Membuat Soal!'); 
+
         return redirect('/dashboard/angket/add')->with('success','Judul Soal has been added!');
        
     }

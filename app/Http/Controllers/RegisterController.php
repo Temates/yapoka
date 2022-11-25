@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 
 class RegisterController extends Controller
@@ -29,7 +30,7 @@ class RegisterController extends Controller
 
         User::create($validatedData);
         // $request->session()->flash('success', 'Registration Successfull! Please Login!');
-
+        Log::info('User Dengan Email: '. $request->email .' Telah Dibuat!'); 
         return redirect('/login')->with('success', 'Registration Successfull! Please Login!');
         
     }

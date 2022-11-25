@@ -20,8 +20,14 @@ class ResetPasswordController extends Controller
                 : back()->withErrors(['email' => __($status)]);  
 
     }
+    // 
 
     //-- Reset Password versi kirim notif ke admin --
+    // public function resetpasspage(){
+    //     //     return view('auth.forgot-password',[
+    //     //         'title' => 'Reset Password',
+    //     //         'active' => 'reset-password']);         
+    //     // }
     // public function resetemail(Request $request){
     //     $rules = [
     //         'email' => 'required|email:dns'    

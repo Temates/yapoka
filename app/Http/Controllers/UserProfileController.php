@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class UserProfileController extends Controller
 {
@@ -52,6 +53,7 @@ class UserProfileController extends Controller
         ->update($validatedData1);
         UserProfile::where('user_id', auth()->user()->id)
         ->update($validatedData2);
+        Log::info('User '. auth()->user()->email .' Melakukan Perubahan Data Profile'); 
 
     return redirect('/dashboard')->with('success','User Profile has been updated!');
     }

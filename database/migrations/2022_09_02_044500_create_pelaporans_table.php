@@ -23,7 +23,8 @@ return new class extends Migration
             $table->integer('jumlah_penyetuju');
             $table->string('list_id_penyetuju');
             $table->boolean('status_laporan')->default('0');
-            
+            $table->integer('idsekarang');
+            $table->boolean('confirmed')->nullable()->default(false);            
             $table->timestamps();
         });
     }

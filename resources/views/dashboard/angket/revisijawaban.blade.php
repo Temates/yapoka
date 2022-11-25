@@ -12,7 +12,7 @@
                     <input type="hidden" name="idlaporan" value="{{$pelaporan}}">
                     <input type="hidden" name="note" id="note">
                     {{-- bawah nanti isi judul e ndooooo --}}
-                    <label for="title" >Judul Laporan</label>
+                    <label for="title" >Judul Laporan:</label>
                     <input type="text"  id="title" name="title"  value="{{ $post->title }}"required autofocus >
                 <table>
 
@@ -51,34 +51,8 @@
 </div>
 
 <script>
-    function tolak() {
-    let text;
-    let person = prompt("masukan catatan kenapa di tolak:", "");
-    if (person == null || person == "") {
-      text = "mohon isi catatan kenapa ditolak";
-      alert(text);
-    } else {
-      document.getElementById('form').action = "ceklaporan/laporanditolak";
-      document.getElementById("note").value =person;
-      document.getElementById("form").submit();
-}}
-
-    function previewImage(){
-
-        const image = document.querySelector('#image');
-        const imgPreview = document.querySelector('.img-preview')
-
-        imgPreview.style.display = 'block';
-
-        const oFReader = new FileReader();
-
-        oFReader.readAsDataURL(image.files[0]);
-
-        oFReader.onload = function(oFREvent) {
-
-            imgPreview.src = oFREvent.target.result;
-            }
-    }
+    ffunction note(){var text = document.getElementById("note").value; 
+      alert(text);}
 
 </script>
 {{-- <script>

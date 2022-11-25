@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
@@ -34,10 +35,12 @@ class GoogleAuthController extends Controller
 
              UserProfile::create([
                 'user_id' => auth()->user()->id,
-                'full_name' => '',
+                'full_name' => auth()->user()->name,
                 'handphone_number' => '',
                 'address' => '',
              ]);
+            Log::info('User Dengan Email: '. auth()->user()->email .' Telah Dibuat!'); 
+
              return redirect()->intended('dashboard');
 
          }
