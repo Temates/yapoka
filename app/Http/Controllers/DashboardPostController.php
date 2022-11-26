@@ -55,6 +55,7 @@ class DashboardPostController extends Controller
             'penyetuju' => $data->paginate(10)
         ]);
     }
+    
 
 
     /**
@@ -351,7 +352,7 @@ class DashboardPostController extends Controller
             public function save(request $request){
                 $idpengecek=auth()->user()->id;
                 //ganti atas
-                $datapelaporan = DB::select('select * from pelaporanS where id = ?', [$request->idlaporan]);
+                $datapelaporan = DB::select('select * from pelaporans where id = ?', [$request->idlaporan]);
                 $id=explode("'",$datapelaporan[0]->list_id_penyetuju);
                 $arry=$datapelaporan[0]->status_penyetuju_nomer;
                 $querry = null;
@@ -367,17 +368,28 @@ class DashboardPostController extends Controller
 
                 }
                 $soal = DB::select('select * from categories where '.$querry);
+                if(isset($id[$arry])){
                 if($idpengecek==$id[$arry-1]){
+                    
                     for($i=0;$i<count($soal);$i++){
                         if($soal[$i]->type != "file"){
-                            DB::update('update jawabanform set jawaban = ? where idpelaporan = ? and idsoal = ?', [$request->get($soal[$i]->id),$request->idlaporan,$soal[$i]->id]);
+                            DB::update('update jawabanform set jawaban = ? where idpelaporan = ? and idsoal = ?', [$request->get($soal[$i]->id),$request->idlaporan,$soal[$i]->id]);                            
                         }
                     }
-                    DB::update('update pelaporan set status_penyetuju_nomer = ?,idsekarang = ? where id = ?', [$datapelaporan[0]->status_penyetuju_nomer+1,$id[$datapelaporan[0]->status_penyetuju_nomer] ,$request->idlaporan]);
-                    Log::info('User '. auth()->user()->email .' Telah Menerima Laporan dengan ID = ' . $request->idlaporan . '!'); 
+                    dd($id[$datapelaporan[0]->status_penyetuju_nomer]);
+                    DB::update('update pelaporans set status_penyetuju_nomer = ?,idsekarang = ? where id = ?', [$datapelaporan[0]->status_penyetuju_nomer+1,$id[$datapelaporan[0]->status_penyetuju_nomer] ,$request->idlaporan]);
+                    Log::info('User '. auth()->user()->email .' Telah Menerima Laporan dengan ID = ' . $request->idlaporan . '!');
+                    return redirect('/dashboard')->with('success','Berhasil di Setujui'); 
 
                     }else{
-                    echo("bukan giliran anda dalam pengecekan");
+                    
+                    return redirect('/dashboard')->with('success','bukan giliran anda dalam pengecekan');
+                    }
+                }
+                else{
+                    DB::update('update pelaporans set status_penyetuju_nomer = ?, confirmed= ? where id = ?', [$datapelaporan[0]->status_penyetuju_nomer+1,true,$request->idlaporan]);
+                    Log::info('User '. auth()->user()->email .' Telah Menerima Laporan dengan ID = ' . $request->idlaporan . 'dan Laporan sudah Selesai!');
+                    return redirect('/dashboard')->with('success','Berhasil di Setujui'); 
                 }
             }
 
@@ -424,8 +436,9 @@ class DashboardPostController extends Controller
             }
 
             public function priview(request $request){
-                $pelaporan = 1;
+                $pelaporan = $request->pelaporan;
                 $querry = null;
+                $post = Pelaporan::where('id',$pelaporan)->first();
                 $data=DB::select('select * from listsoalpelaporan where nomerpelaporan = ?', [$pelaporan]);
                 $laporan = DB::select('select * from pelaporans where id = ?', [$pelaporan]);
                 $idsoal = explode(",",$data[0]->list_id_soal);
@@ -451,7 +464,11 @@ class DashboardPostController extends Controller
                     'allow_self_signed' => TRUE,
                 ]
             ]);
-            return View('priview',compact('jawaban','pelaporan'));
+
+            // dd($jawaban);
+            return View('dashboard.priview',compact('jawaban','pelaporan'),[
+                'posts' => $post
+            ]);
         }
 
         public function print(request $request){
@@ -468,6 +485,23 @@ class DashboardPostController extends Controller
             }
             $querry = $querry.$dummy;
             }
+            $soal = DB::select('select * from posts where '.$querry);
+            $jawaban = DB::select('select * from jawabanform INNER JOIN posts ON posts.id = jawabanform.idsoal where idpelaporan =?',[$pelaporan]);
+          //   return view('hasilprint',compact('jawaban','pelaporan'));
+          //   $pdf = Pdf::loadView('form');
+      
+          $contxt = stream_context_create([
+              'ssl' => [
+                  'verify_peer' => FALSE,
+                  'verify_peer_name' => FALSE,
+                  'allow_self_signed' => TRUE,
+              ]
+          ]);
+          $dompdf=Pdf::loadView('hasilprint',compact('jawaban','pelaporan')); 
+          // return PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView('hasilprint',compact('jawaban','pelaporan'))->stream();
+          return $dompdf->stream();
+
+            
           }
 
           public function revisi(request $request){
@@ -492,6 +526,7 @@ class DashboardPostController extends Controller
               $dummy = $laporan[0]->note;
               return view('dashboard.angket.revisijawaban',compact('jawaban','pelaporan','dummy'));
             }
+
             public function updaterevisi(request $request){
                 $idpengisi=1;
                 //ganti atas
@@ -537,6 +572,37 @@ class DashboardPostController extends Controller
      * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\Response
      */
-    
+    public function completejobs()
+    {
+
+
+        $data = Pelaporan::where('confirmed',1)
+        ->latest();
+        
+        //     $data = Pelaporan::where(function($query){
+        //     $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%");
+        // })
+        // ->where('status_penyetuju_nomer',2)
+        // ->orWhere(function($query){
+        //     $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%");
+        // })
+        // ->orWhere(function($query){
+        //     $query->where('list_id_penyetuju', 'like', '%'. auth()->user()->id . "'%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "%")
+        //     ->orWhere('list_id_penyetuju', 'like', "%'". auth()->user()->id . "'%")
+        //     ->where('status_penyetuju_nomer',6);
+        // })
+        // ->latest();
+
+        return view('dashboard.viewlaporan',[
+            'title' => 'Dashboard',
+            'active' => 'dashboard',
+            'posts' => $data->paginate(10)
+        ]);
+    }
 
 }

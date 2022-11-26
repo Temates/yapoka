@@ -103,4 +103,5 @@ Route::get('/preview',[DashboardPostController::class, 'priview']);
 Route::get('/print',[DashboardPostController::class, 'print']);
 Route::get('/revisi',[DashboardPostController::class, 'revisi']);
 Route::post('/revisi/submit',[DashboardPostController::class, 'updaterevisi']);
+Route::get('/dashboard/laporan-yang-sudah-disetujui',[DashboardPostController::class, 'completejobs']);
 

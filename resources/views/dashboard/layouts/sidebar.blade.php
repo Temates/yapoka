@@ -33,6 +33,12 @@
             Buat Laporan
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link {{ Request::is('/dashboard/laporan-yang-sudah-disetujui') ? 'active' : '' }}" href="/dashboard/laporan-yang-sudah-disetujui">
+            <span data-feather="archive" class="align-text-bottom"></span>
+            Archive
+          </a>
+        </li>
         
       </ul>
 

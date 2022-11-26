@@ -29,7 +29,7 @@
                         @if($item->type == "text" or $item->type == "date" or $item->type == "number")
                         <input type="{{$item->type}}" id="soal" name="soal[{{$dummy}}]" required>
                         @elseif ($item->type == "file")
-                        <input type="file" id="soal" name="soal[{{$dummy}}][]" accept="image/*" multiple required>
+                        <input type="file" id="soal" name="soal[{{$dummy}}]" accept="image/*" multiple required>
                         @elseif ($item->type == "textarea")
                         <textarea rows="10" cols="50" id="soal" name="soal[{{$dummy}}]" spellcheck="true" lang="in"></textarea><br>
                         @endif
